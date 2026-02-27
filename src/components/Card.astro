@@ -1,0 +1,161 @@
+---
+// src/components/Card.astro
+interface Props {
+    title: string;
+    description: string;
+    url: string;
+    date?: string;
+    author?: string;
+    category?: string;
+}
+
+const { title, description, url, date, author, category } = Astro.props;
+---
+
+<article class="celestial-card">
+    <div class="card-border"></div>
+    <div class="card-content">
+        {category && <span class="card-category">{category}</span>}
+        <h3 class="card-title"><a href={url}>{title}</a></h3>
+        <div class="card-meta">
+            {date && <time class="card-date">{date}</time>}
+            {author && <span class="card-author">✦ Written by {author}</span>}
+        </div>
+        <p class="card-desc">{description}</p>
+        <a href={url} class="card-link" aria-label={`Read more about ${title}`}
+            >Read more <span class="arrow">→</span></a
+        >
+    </div>
+</article>
+
+<style>
+    .celestial-card {
+        position: relative;
+        background-color: rgba(45, 31, 20, 0.4); /* translucent library brown */
+        border: 1px solid rgba(140, 115, 75, 0.3); /* faint gold border */
+        padding: 2rem;
+        transition: var(--transition-smooth);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .card-border {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 100%;
+        background: linear-gradient(
+            to bottom,
+            transparent,
+            var(--accent-gold),
+            transparent
+        );
+        opacity: 0;
+        transition: var(--transition-smooth);
+    }
+
+    .celestial-card:hover {
+        background-color: rgba(45, 31, 20, 0.8);
+        border-color: rgba(207, 170, 107, 0.6);
+        box-shadow:
+            0 10px 30px rgba(0, 0, 0, 0.5),
+            inset 0 0 20px rgba(207, 170, 107, 0.05);
+        transform: translateY(-5px);
+    }
+
+    .celestial-card:hover .card-border {
+        opacity: 1;
+    }
+
+    .card-content {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .card-category {
+        font-family: var(--font-serif-elegant);
+        font-size: 0.85rem;
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-title {
+        font-family: var(--font-serif-elegant);
+        font-size: 1.4rem;
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+    }
+
+    .card-title a {
+        color: var(--text-ash-gray);
+    }
+
+    .card-title a::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0; /* Make entire card clickable via pseudo element if preferred, but usually keep it to link for accessibility, let's just color hover */
+    }
+
+    .celestial-card:hover .card-title a {
+        color: var(--accent-gold-glow);
+    }
+
+    .card-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .card-date {
+        font-size: 0.85rem;
+        color: rgba(176, 181, 192, 0.6);
+        font-style: italic;
+    }
+
+    .card-author {
+        font-size: 0.85rem;
+        font-family: var(--font-serif-elegant);
+        color: var(--border-gold);
+        font-style: italic;
+    }
+
+    .card-desc {
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .card-link {
+        font-family: var(--font-serif-elegant);
+        font-size: 0.95rem;
+        color: var(--accent-gold);
+        font-style: italic;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: auto;
+    }
+
+    .arrow {
+        transition: transform 0.3s ease;
+    }
+
+    .card-link:hover .arrow {
+        transform: translateX(5px);
+    }
+</style>

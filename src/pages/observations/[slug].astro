@@ -1,0 +1,836 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import "../../styles/markdown.css";
+
+export async function getStaticPaths() {
+    const observations = await getCollection("observations");
+    return observations.map((entry) => ({
+        params: { slug: entry.slug },
+        props: { entry },
+    }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await entry.render();
+
+// Filter headings for TOC (usually h1, h2, h3)
+const toc = headings.filter((h) => h.depth <= 3);
+
+// Format date
+const formattedDate = entry.data.date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+});
+---
+
+<Layout title={`${entry.data.title} | Celestial Archives`}>
+    <div class="article-layout">
+        <main class="observation-article">
+            <article class="entry-content">
+                <header class="article-header">
+                    <div class="article-meta">
+                        <span class="meta-item author"
+                            >By {entry.data.author}</span
+                        >
+                        <span class="meta-separator">✦</span>
+                        <time class="meta-item date">{formattedDate}</time>
+                        <span class="meta-separator">✦</span>
+                        <a
+                            href={`/constellations/${entry.data.constellation.toLowerCase().replace(/\s+/g, "-")}`}
+                            class="meta-item constellation"
+                        >
+                            {entry.data.constellation}
+                        </a>
+                    </div>
+
+                    <h1 class="article-title">{entry.data.title}</h1>
+
+                    <div class="ornate-divider">
+                        <span class="divider-line"></span>
+                        <span class="material-symbols-outlined star-icon"
+                            >star_rate</span
+                        >
+                        <span class="divider-line"></span>
+                    </div>
+                </header>
+
+                <div class="markdown-body">
+                    <Content />
+                </div>
+
+                <footer class="article-footer">
+                    <div class="end-mark">✧ ✦ ✧</div>
+                </footer>
+            </article>
+        </main>
+
+        <aside class="article-sidebar">
+            <div class="sidebar-sticky">
+                {
+                    toc.length > 0 && (
+                        <div class="toc-container">
+                            <h3 class="toc-title">Table of Contents</h3>
+                            <ul class="toc-list" id="toc-list">
+                                {toc.map((heading) => (
+                                    <li
+                                        class={`toc-item depth-${heading.depth}`}
+                                    >
+                                        <a
+                                            href={`#${heading.slug}`}
+                                            data-slug={heading.slug}
+                                        >
+                                            {heading.text}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )
+                }
+
+                <div class="reading-progress">
+                    <div class="progress-and-top">
+                        <div class="progress-ring-container">
+                            <svg class="progress-ring" viewBox="0 0 50 50">
+                                <circle
+                                    class="progress-ring-bg"
+                                    cx="25"
+                                    cy="25"
+                                    r="20"></circle>
+                                <circle
+                                    class="progress-ring-fill"
+                                    cx="25"
+                                    cy="25"
+                                    r="20"
+                                    id="progress-circle"></circle>
+                            </svg>
+                            <span class="progress-text" id="progress-text"
+                                >0%</span
+                            >
+                        </div>
+                        <button
+                            class="back-to-top"
+                            id="back-to-top"
+                            aria-label="Back to top"
+                        >
+                            <span
+                                class="material-symbols-outlined"
+                                style="font-size:1.4rem;">arrow_upward</span
+                            >
+                            <span>back to top</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    {/* Mobile Floating TOC Button */}
+    {
+        toc.length > 0 && (
+            <button
+                id="mobile-toc-fab"
+                class="mobile-toc-fab"
+                aria-label="Table of Contents"
+            >
+                <span class="material-symbols-outlined" id="fab-icon">
+                    menu_book
+                </span>
+            </button>
+        )
+    }
+</Layout>
+
+<script>
+    import mermaid from "mermaid";
+
+    // Initialize mermaid when the DOM loads
+    document.addEventListener("DOMContentLoaded", () => {
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: "dark", // Native dark theme from Mermaid
+            fontFamily: "var(--font-body)",
+        });
+
+        // Astro 4+ renders code blocks as <pre class="astro-code" data-language="mermaid">
+        const mermaidBlocks = document.querySelectorAll(
+            'pre[data-language="mermaid"], code.language-mermaid',
+        );
+        mermaidBlocks.forEach((block, index) => {
+            const tempParent = document.createElement("div");
+            tempParent.className = "mermaid";
+            tempParent.id = `mermaid-graph-${index}`;
+            tempParent.textContent = block.textContent;
+
+            // Replace the pre wrapper
+            if (block.tagName === "PRE") {
+                block.replaceWith(tempParent);
+            } else if (
+                block.parentElement &&
+                block.parentElement.tagName === "PRE"
+            ) {
+                block.parentElement.replaceWith(tempParent);
+            }
+        });
+
+        // Trigger render
+        mermaid.init(undefined, document.querySelectorAll(".mermaid"));
+
+        // --- 1. Client-Side External Links ---
+        document.querySelectorAll(".markdown-body a").forEach((a) => {
+            const link = a as HTMLAnchorElement;
+            if (link.hostname && link.hostname !== window.location.hostname) {
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+            }
+        });
+
+        // --- 2. Client-Side Highlight & Sub/Superscript Parser ---
+        // Processes text nodes for ==highlight==, ^superscript^, and ~subscript~
+        const container = document.querySelector(".markdown-body");
+        if (container) {
+            const walker = document.createTreeWalker(
+                container,
+                NodeFilter.SHOW_TEXT,
+                null,
+            );
+            const nodesToReplace = [];
+            let node;
+            while ((node = walker.nextNode())) {
+                const parentTag = node.parentNode
+                    ? (node.parentNode as HTMLElement).tagName
+                    : "";
+                if (parentTag === "CODE" || parentTag === "PRE") continue;
+
+                if (/(==|\^|~)(.*?)\1/.test(node.nodeValue || "")) {
+                    nodesToReplace.push(node);
+                }
+            }
+
+            nodesToReplace.forEach((n) => {
+                let html = n.nodeValue || "";
+                html = html
+                    .replace(/==([^=]+)==/g, "<mark>$1</mark>")
+                    .replace(/\^([^\^]+)\^/g, "<sup>$1</sup>")
+                    .replace(/~([^~]+)~/g, "<sub>$1</sub>");
+
+                const span = document.createElement("span");
+                span.innerHTML = html;
+                if (n.parentNode) n.parentNode.replaceChild(span, n);
+            });
+        }
+
+        // --- 3. Code Block Embellishments ---
+        document.querySelectorAll("pre.astro-code").forEach((pre) => {
+            if (pre.classList.contains("mermaid")) return;
+
+            const wrapper = document.createElement("div");
+            wrapper.className = "code-block-wrapper";
+            if (pre.parentNode) {
+                pre.parentNode.insertBefore(wrapper, pre);
+                wrapper.appendChild(pre);
+            }
+
+            const lang = pre.getAttribute("data-language") || "code";
+
+            const header = document.createElement("div");
+            header.className = "code-block-header";
+            header.innerHTML = `
+                <span class="code-lang">${lang}</span>
+                <button class="code-copy-btn"><span class="material-symbols-outlined" style="font-size: 1rem;">content_copy</span> Copy</button>
+            `;
+            wrapper.insertBefore(header, pre);
+
+            // Setup Copy logic
+            const copyBtn = header.querySelector(".code-copy-btn");
+            if (copyBtn) {
+                copyBtn.addEventListener("click", () => {
+                    navigator.clipboard.writeText(pre.textContent || "");
+                    copyBtn.innerHTML =
+                        '<span class="material-symbols-outlined" style="font-size: 1rem;">check</span> Copied';
+                    setTimeout(() => {
+                        copyBtn.innerHTML =
+                            '<span class="material-symbols-outlined" style="font-size: 1rem;">content_copy</span> Copy';
+                    }, 2000);
+                });
+            }
+        });
+    });
+
+    // Scroll Spy & Progress Indicator Logic
+    document.addEventListener("DOMContentLoaded", () => {
+        // --- Progress Indicator ---
+        const progressCircle = document.getElementById(
+            "progress-circle",
+        ) as SVGCircleElement | null;
+        const progressText = document.getElementById("progress-text");
+        const backToTopBtn = document.getElementById("back-to-top");
+
+        // Calculate circumference
+        let circumference = 0;
+        if (progressCircle) {
+            const radius = progressCircle.r.baseVal.value;
+            circumference = radius * 2 * Math.PI;
+            progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+            progressCircle.style.strokeDashoffset = `${circumference}`;
+        }
+
+        const setProgress = (percent: number) => {
+            if (progressCircle) {
+                const offset = circumference - (percent / 100) * circumference;
+                progressCircle.style.strokeDashoffset = `${offset}`;
+            }
+            if (progressText) {
+                progressText.innerText = `${Math.round(percent)}%`;
+            }
+        };
+
+        const updateScroll = () => {
+            const scrollPosition = window.scrollY;
+            // Calculate total scrollable height (document height - window height)
+            const scrollHeight =
+                document.documentElement.scrollHeight - window.innerHeight;
+
+            let percent = 0;
+            if (scrollHeight > 0) {
+                percent = (scrollPosition / scrollHeight) * 100;
+            }
+
+            // Cap it nicely
+            percent = Math.max(0, Math.min(100, percent));
+            setProgress(percent);
+        };
+
+        window.addEventListener("scroll", updateScroll);
+        window.addEventListener("resize", updateScroll);
+        updateScroll(); // init
+
+        // --- Back to Top ---
+        if (backToTopBtn) {
+            backToTopBtn.addEventListener("click", () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth",
+                });
+            });
+        }
+
+        // --- Intersection Observer (TOC Scroll Spy) ---
+        const articleHeadings = document.querySelectorAll(
+            ".markdown-body h1, .markdown-body h2, .markdown-body h3",
+        );
+        const tocLinks = document.querySelectorAll(".toc-list a");
+
+        if (articleHeadings.length > 0 && tocLinks.length > 0) {
+            const observerOptions = {
+                root: null,
+                rootMargin: "0px 0px -70% 0px", // Trigger when heading comes well into the viewport
+                threshold: 0,
+            };
+
+            const headingObserver = new IntersectionObserver((entries) => {
+                let activeId: string | null = null;
+                // Get the last intersecting heading in this batch
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        activeId = entry.target.getAttribute("id");
+                    }
+                });
+
+                if (activeId) {
+                    tocLinks.forEach((link) => {
+                        link.classList.remove("active");
+                        if (link.getAttribute("data-slug") === activeId) {
+                            link.classList.add("active");
+                            // Auto-scroll the TOC container to show the active link
+                            link.scrollIntoView({
+                                block: "nearest",
+                                behavior: "smooth",
+                            });
+                        }
+                    });
+                }
+            }, observerOptions);
+
+            articleHeadings.forEach((heading) => {
+                headingObserver.observe(heading);
+            });
+        }
+
+        // --- Mobile Floating TOC Logic ---
+        const fab = document.getElementById("mobile-toc-fab");
+        const sidebar = document.querySelector(".article-sidebar");
+        const fabIcon = document.getElementById("fab-icon");
+
+        if (fab && sidebar) {
+            // Toggle Modal
+            fab.addEventListener("click", () => {
+                const isOpen = sidebar.classList.contains("show-modal");
+                if (isOpen) {
+                    sidebar.classList.remove("show-modal");
+                    if (fabIcon) fabIcon.textContent = "menu_book";
+                    document.body.style.overflow = ""; // restore scrolling
+                } else {
+                    sidebar.classList.add("show-modal");
+                    if (fabIcon) fabIcon.textContent = "close";
+                    document.body.style.overflow = "hidden"; // lock page scroll
+                }
+            });
+
+            // Close modal when a TOC link is clicked
+            if (tocLinks.length > 0) {
+                tocLinks.forEach((link) => {
+                    link.addEventListener("click", () => {
+                        if (window.innerWidth <= 1024) {
+                            sidebar.classList.remove("show-modal");
+                            if (fabIcon) fabIcon.textContent = "menu_book";
+                            document.body.style.overflow = "";
+                        }
+                    });
+                });
+            }
+
+            // Also close modal when 'Back to Top' is clicked
+            const backToTopBtn = document.querySelector(".back-to-top");
+            if (backToTopBtn) {
+                backToTopBtn.addEventListener("click", () => {
+                    if (window.innerWidth <= 1024) {
+                        sidebar.classList.remove("show-modal");
+                        if (fabIcon) fabIcon.textContent = "menu_book";
+                        document.body.style.overflow = "";
+                    }
+                });
+            }
+
+            // Close modal if clicking outside the sticky container
+            sidebar.addEventListener("click", (e) => {
+                if (e.target === sidebar && window.innerWidth <= 1024) {
+                    sidebar.classList.remove("show-modal");
+                    if (fabIcon) fabIcon.textContent = "menu_book";
+                    document.body.style.overflow = "";
+                }
+            });
+        }
+    });
+</script>
+
+<style>
+    /* Full Dual-Column Layout */
+    .article-layout {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 1rem var(--spacing-base) 4rem;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 220px;
+        gap: 2.5rem;
+        align-items: start;
+    }
+
+    .observation-article {
+        width: 100%;
+        max-width: 850px;
+        margin: 0 auto; /* Perfectly center the article in its column */
+        background: transparent; /* Changed to perfectly transparent to show stars */
+        border: none;
+        padding: 1.5rem 0 3.5rem 0; /* Reduced top padding to 1.5rem */
+        position: relative;
+        z-index: 5;
+        box-sizing: border-box;
+        min-width: 0; /* Prevent CSS Grid blowout on narrow screens */
+    }
+
+    /* Sidebar Styling */
+    .article-sidebar {
+        display: block;
+        height: 100%;
+        background: transparent; /* Explicitly ensure no grayish tint */
+    }
+
+    .sidebar-sticky {
+        position: sticky;
+        top: 8rem; /* Stick below the header with extra breathing room */
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+        max-height: calc(100vh - 10rem);
+        overflow-y: auto;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* Edge */
+    }
+
+    /* Hide scrollbar for the sidebar */
+    .sidebar-sticky::-webkit-scrollbar {
+        display: none;
+        width: 0px;
+        background: transparent;
+    }
+
+    .toc-container {
+        border-left: 1px solid rgba(140, 115, 75, 0.2);
+        padding-left: 1rem;
+    }
+
+    .toc-title {
+        font-family: var(--font-serif-elegant);
+        font-size: 1.1rem;
+        color: var(--border-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1rem;
+    }
+
+    .toc-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 40vh;
+        overflow-y: auto;
+        padding-right: 1rem;
+    }
+
+    .toc-list::-webkit-scrollbar {
+        width: 4px;
+    }
+    .toc-list::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .toc-list::-webkit-scrollbar-thumb {
+        background: rgba(140, 115, 75, 0.3);
+        border-radius: 2px;
+    }
+    .toc-list::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-gold);
+    }
+
+    .toc-item {
+        line-height: 1.4;
+    }
+
+    .toc-item.depth-1 {
+        margin-left: 0;
+        font-weight: 600;
+    }
+    .toc-item.depth-2 {
+        margin-left: 1rem;
+        font-size: 0.95em;
+    }
+    .toc-item.depth-3 {
+        margin-left: 2rem;
+        font-size: 0.9em;
+    }
+
+    .toc-item a {
+        color: rgba(176, 181, 192, 0.5); /* Dim text normally */
+        text-decoration: none;
+        transition: var(--transition-smooth);
+        display: inline-block;
+        font-size: 0.95rem;
+    }
+
+    .toc-item a:hover {
+        color: var(--accent-gold);
+    }
+
+    .toc-item a.active {
+        color: var(--accent-gold-glow);
+        text-shadow: 0 0 10px rgba(207, 170, 107, 0.3);
+        transform: translateX(4px);
+    }
+
+    /* Progress & Back to Top */
+    .reading-progress {
+        display: block;
+    }
+
+    .progress-and-top {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .progress-ring-container {
+        position: relative;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .progress-ring {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg); /* Start from top */
+    }
+
+    .progress-ring-bg {
+        fill: transparent;
+        stroke: rgba(140, 115, 75, 0.2);
+        stroke-width: 3;
+    }
+
+    .progress-ring-fill {
+        fill: transparent;
+        stroke: var(--accent-gold);
+        stroke-width: 3;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.1s linear;
+    }
+
+    .progress-text {
+        font-family: var(--font-serif-elegant);
+        font-size: 0.8rem;
+        color: var(--accent-gold);
+        position: relative;
+        z-index: 2;
+    }
+
+    .back-to-top {
+        background: transparent;
+        border: none;
+        color: rgba(176, 181, 192, 0.5);
+        font-family: var(--font-serif-elegant);
+        font-size: 0.85rem;
+        cursor: pointer;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.3rem;
+        transition: var(--transition-smooth);
+        padding: 0;
+        text-transform: lowercase;
+        font-style: italic;
+        line-height: 1;
+    }
+
+    .back-to-top .material-symbols-outlined {
+        transition: color 0.3s ease;
+    }
+
+    .back-to-top:hover {
+        color: var(--accent-gold-glow);
+    }
+
+    /* Article Meta overrides (existing) */
+    .article-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .article-meta {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        font-family: var(--font-body);
+        font-size: 0.95rem;
+        color: var(--text-ash-gray);
+        margin-bottom: 1rem;
+        letter-spacing: 0.05em;
+    }
+
+    .meta-separator {
+        color: var(--border-gold);
+        font-size: 0.7rem;
+    }
+
+    .constellation {
+        color: var(--accent-gold);
+        text-decoration: none;
+        transition: var(--transition-smooth);
+    }
+
+    .constellation:hover {
+        color: var(--accent-gold-glow);
+        text-shadow: 0 0 8px rgba(207, 170, 107, 0.4);
+    }
+
+    .article-title {
+        font-family: var(--font-serif-display);
+        font-size: 3.5rem;
+        color: var(--accent-gold);
+        line-height: 1.1;
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        text-shadow: var(--shadow-celestial);
+    }
+
+    .ornate-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .divider-line {
+        height: 1px;
+        width: 150px;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            var(--border-gold),
+            transparent
+        );
+    }
+
+    .star-icon {
+        color: var(--accent-gold);
+        font-size: 1.2rem;
+        text-transform: none !important;
+    }
+
+    .markdown-body {
+        font-family: var(--font-body);
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #d1c8b3;
+    }
+
+    .article-footer {
+        margin-top: 5rem;
+        text-align: center;
+        padding-top: 3rem;
+        border-top: 1px dashed rgba(207, 170, 107, 0.2);
+    }
+
+    .end-mark {
+        color: var(--border-gold);
+        font-size: 1.5rem;
+        letter-spacing: 0.5rem;
+    }
+
+    /* Mobile Floating TOC Button CSS */
+    .mobile-toc-fab {
+        display: none; /* Hidden on desktop */
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 250;
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        background: rgba(10, 11, 16, 0.95);
+        border: 1px solid var(--border-gold);
+        color: var(--accent-gold);
+        box-shadow:
+            0 4px 15px rgba(0, 0, 0, 0.6),
+            0 0 10px rgba(207, 170, 107, 0.2);
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition-smooth);
+    }
+
+    .mobile-toc-fab:hover {
+        background: rgba(45, 31, 20, 0.95);
+        box-shadow:
+            0 6px 20px rgba(0, 0, 0, 0.8),
+            0 0 15px rgba(207, 170, 107, 0.4);
+        transform: scale(1.05); /* Slightly enlarge on hover */
+    }
+
+    .mobile-toc-fab .material-symbols-outlined {
+        font-size: 1.6rem;
+    }
+
+    @media (max-width: 1024px) {
+        .article-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .observation-article {
+            margin: 0 auto; /* Center back on tablet */
+            padding: 1.5rem 1rem 3.5rem 1rem; /* Add safe padding on mobile so text doesn't hit edge */
+            overflow-x: hidden; /* Guarantee nothing stretches the page out */
+        }
+
+        .mobile-toc-fab {
+            display: flex; /* Show floating button */
+        }
+
+        /* Transform Sidebar into Full-Screen Modal Overlay */
+        .article-sidebar {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: rgba(10, 11, 16, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 6rem 2rem 4rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            /* Hidden by default */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .article-sidebar.show-modal {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .sidebar-sticky {
+            position: static;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 400px;
+            max-height: 80vh;
+            justify-content: center;
+            align-items: center; /* Center progress ring & button in modal */
+            gap: 2rem;
+        }
+
+        .toc-container {
+            border-left: none;
+            padding-left: 0;
+            text-align: center; /* Center-align the TOC titles on mobile */
+            width: 100%;
+        }
+
+        .toc-list {
+            padding-right: 0;
+            align-items: center;
+            max-height: 50vh;
+        }
+
+        .toc-item.depth-1,
+        .toc-item.depth-2,
+        .toc-item.depth-3 {
+            margin-left: 0; /* Remove indenting to center perfectly */
+            margin-bottom: 0.5rem;
+        }
+
+        .reading-progress {
+            margin-top: 1rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .article-layout {
+            padding: 2rem var(--spacing-base);
+        }
+
+        .article-title {
+            font-size: 2.5rem;
+        }
+
+        .article-meta {
+            font-size: 0.85rem;
+            gap: 0.5rem;
+        }
+    }
+</style>

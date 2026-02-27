@@ -1,0 +1,378 @@
+---
+// src/components/Header.astro
+import { Image } from "astro:assets";
+import { siteConfig } from "../config/siteConfig";
+const navItems = [
+    { label: "Homepage", url: "/" },
+    { label: "Archives", url: "/archives" },
+    { label: "Constellations", url: "/constellations" },
+    { label: "Links", url: "/links" },
+];
+---
+
+<header class="site-header">
+    <div class="header-container">
+        <div class="logo-area">
+            <a
+                href="/"
+                class="logo"
+                aria-label={`${siteConfig.site.title} Home`}
+            >
+                <Image
+                    src="/logo.svg"
+                    alt={`${siteConfig.site.title} Logo`}
+                    class="logo-image"
+                    width={75}
+                    height={60}
+                />
+                <div class="logo-text">
+                    <div class="title">{siteConfig.site.title}</div>
+                    <div class="subtitle">
+                        curated by {siteConfig.site.author}
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <nav aria-label="Main Navigation">
+            <ul class="nav-list">
+                {
+                    navItems.map((item) => (
+                        <li>
+                            <a href={item.url} class="nav-link">
+                                {item.label}
+                            </a>
+                        </li>
+                    ))
+                }
+                <li class="dropdown">
+                    <span class="nav-link dropdown-toggle" tabindex="0"
+                        >About <span class="caret">▾</span></span
+                    >
+                    <ul class="dropdown-menu">
+                        <li><a href="/about/archivist">Archivist</a></li>
+                        <li><a href="/about/site">This Site</a></li>
+                    </ul>
+                </li>
+                <li class="search-item">
+                    <a
+                        href="/search"
+                        class="nav-link search-link"
+                        title="Search Archives"
+                        aria-label="Search Archives"
+                    >
+                        <span
+                            class="material-symbols-outlined"
+                            aria-hidden="true">search</span
+                        >
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="header-border"></div>
+</header>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        let lastScrollY = window.scrollY;
+        const header = document.querySelector(".site-header") as HTMLElement;
+        let isHovered = false;
+
+        if (header) {
+            header.addEventListener("mouseenter", () => (isHovered = true));
+            header.addEventListener("mouseleave", () => (isHovered = false));
+
+            window.addEventListener("scroll", () => {
+                if (isHovered) return; // Don't hide if user is interacting with it
+
+                const currentScrollY = window.scrollY;
+
+                if (currentScrollY <= 80) {
+                    header.style.transform = "translateY(0)";
+                } else if (currentScrollY > lastScrollY) {
+                    // Scrolling down - Hide
+                    header.style.transform = "translateY(-100%)";
+                } else if (currentScrollY < lastScrollY - 20) {
+                    // Scrolling up - Show (with small threshold to prevent jitter)
+                    header.style.transform = "translateY(0)";
+                }
+
+                lastScrollY = currentScrollY;
+            });
+        }
+    });
+</script>
+
+<style>
+    .site-header {
+        width: 100%;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: linear-gradient(
+            to bottom,
+            rgba(10, 11, 16, 0.95),
+            rgba(10, 11, 16, 0.8)
+        );
+        backdrop-filter: blur(8px);
+        border-bottom: 2px solid var(--bg-dark-night);
+        transition: transform 0.4s cubic-bezier(0.3, 0, 0.2, 1);
+    }
+
+    .header-container {
+        max-width: calc(var(--max-width-content) + 120px);
+        margin: 0 auto;
+        padding: 1.5rem var(--spacing-base);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    /* Decorative ornate border mimicking old library shelves */
+    .header-border {
+        height: 4px;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            var(--border-gold),
+            var(--accent-gold),
+            var(--border-gold),
+            transparent
+        );
+        width: 100%;
+        box-shadow: var(--shadow-celestial);
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-decoration: none;
+    }
+
+    .logo-image {
+        height: 60px;
+        width: auto;
+        flex-shrink: 0;
+        transition: var(--transition-smooth);
+    }
+
+    .logo:hover .logo-image {
+        filter: drop-shadow(0 0 8px var(--accent-gold-glow));
+    }
+
+    .logo:hover .logo-text .title {
+        text-shadow: var(--shadow-celestial);
+    }
+
+    .logo-text {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .logo-text .title {
+        font-family: var(--font-serif-display);
+        font-size: 1.8rem;
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: var(--transition-smooth);
+    }
+
+    .logo-text .subtitle {
+        font-family: var(--font-serif-elegant);
+        font-size: 0.9rem;
+        color: var(--text-ash-gray);
+        font-style: italic;
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+        margin-left: 4px;
+    }
+
+    .nav-list {
+        list-style: none;
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .nav-link {
+        font-family: var(--font-serif-display);
+        font-size: 0.95rem;
+        color: var(--text-ash-gray);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        position: relative;
+        padding: 0.5rem 0;
+    }
+
+    .nav-link::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background-color: var(--accent-gold);
+        transition: var(--transition-smooth);
+        transform: translateX(-50%);
+        box-shadow: var(--shadow-celestial);
+    }
+
+    .nav-link:hover::after,
+    .nav-link[aria-current="page"]::after {
+        width: 100%;
+    }
+
+    .nav-link:hover {
+        color: var(--accent-gold-glow);
+    }
+
+    /* Dropdown Styles */
+    .dropdown {
+        position: relative;
+        cursor: pointer;
+        padding-bottom: 20px;
+        margin-bottom: -20px;
+    }
+
+    .dropdown-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .caret {
+        font-size: 0.8rem;
+        transition: transform 0.3s ease;
+    }
+
+    .dropdown:hover .caret {
+        transform: rotate(180deg);
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        background: rgba(10, 11, 16, 0.95);
+        border: 1px solid var(--border-gold);
+        box-shadow:
+            var(--shadow-deep),
+            0 0 15px rgba(207, 170, 107, 0.1);
+        list-style: none;
+        padding: 0;
+        min-width: 140px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 200;
+    }
+
+    .dropdown:hover .dropdown-menu,
+    .dropdown:focus-within .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .dropdown-menu li {
+        border-bottom: 1px solid rgba(140, 115, 75, 0.2);
+    }
+
+    .dropdown-menu li:last-child {
+        border-bottom: none;
+    }
+
+    .dropdown-menu li a {
+        display: block;
+        padding: 0.8rem 1.5rem;
+        color: var(--text-ash-gray);
+        font-family: var(--font-serif-elegant);
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: var(--transition-smooth);
+        text-align: center;
+    }
+
+    .dropdown-menu li a:hover {
+        color: var(--accent-gold-glow);
+        background: rgba(207, 170, 107, 0.1);
+    }
+
+    /* Material Symbols Customization */
+    .material-symbols-outlined {
+        font-variation-settings:
+            "FILL" 0,
+            "wght" 300,
+            "GRAD" 0,
+            "opsz" 24;
+        font-size: 1.35rem;
+        opacity: 0.92;
+        display: block;
+    }
+
+    /* Search Styles */
+    .search-item {
+        display: flex;
+        align-items: center;
+        margin-left: 1rem;
+    }
+
+    .search-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid transparent;
+        transition: var(--transition-smooth);
+        color: var(--text-ash-gray);
+    }
+
+    .search-link::after {
+        display: none; /* remove the underline from .nav-link */
+    }
+
+    .search-link:hover {
+        color: var(--accent-gold-glow);
+        border-color: var(--border-gold);
+        background: rgba(45, 31, 20, 0.6);
+        box-shadow: 0 0 10px rgba(207, 170, 107, 0.2);
+        transform: scale(1.05);
+    }
+
+    .search-icon-svg {
+        transition: var(--transition-smooth);
+    }
+
+    @media (max-width: 768px) {
+        .header-container {
+            flex-direction: column;
+            text-align: center;
+        }
+        .logo {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .logo-text .title {
+            font-size: 1.4rem;
+            white-space: normal;
+            word-break: break-word;
+        }
+        .nav-list {
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+    }
+</style>

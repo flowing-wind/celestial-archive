@@ -1,0 +1,367 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+
+const observations = await getCollection("observations");
+
+// Group observations by Year -> Month
+const groupedData: Record<string, Record<string, typeof observations>> = {};
+
+observations.forEach((obs) => {
+    const year = obs.data.date.getFullYear().toString();
+    const month = obs.data.date.toLocaleString('en-US', { month: 'short' });
+    
+    if (!groupedData[year]) groupedData[year] = {};
+    if (!groupedData[year][month]) groupedData[year][month] = [];
+    groupedData[year][month].push(obs);
+});
+
+const sortedYears = Object.keys(groupedData).sort((a, b) => Number(b) - Number(a));
+const monthOrder = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+---
+
+<Layout title="Archives | Timeline">
+    <main class="archives-main">
+        <header class="archives-header">
+            <h1 class="page-title">The Grand Archives</h1>
+            <p class="page-subtitle">A chronological record of celestial anomalies and recorded history.</p>
+            <div class="ornate-divider">
+                <span class="divider-line"></span>
+                <span class="material-symbols-outlined star-icon">star</span>
+                <span class="divider-line"></span>
+            </div>
+        </header>
+
+        <section class="compact-timeline">
+            <!-- The glowing central vertical axis -->
+            <div class="timeline-spine"></div>
+            
+            {sortedYears.map((year, index) => {
+                const months = Object.keys(groupedData[year]).sort(
+                    (a, b) => monthOrder.indexOf(b) - monthOrder.indexOf(a)
+                );
+                
+                return (
+                    <div class="year-section">
+                        <!-- Distinctive Year Marker -->
+                        <div class="year-marker">
+                            <div class="year-gem">
+                                <span class="gem-inner"></span>
+                            </div>
+                            <h2 class="year-label">{year}</h2>
+                        </div>
+                        
+                        <div class="months-container">
+                            {months.map((month) => {
+                                const entries = groupedData[year][month].sort(
+                                    (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+                                );
+                                
+                                return (
+                                    <div class="month-group">
+                                        <div class="month-label-col">
+                                            <div class="month-node"></div>
+                                            <span class="month-name">{month}</span>
+                                            <span class="month-count">({entries.length})</span>
+                                        </div>
+                                        
+                                        <div class="entries-col">
+                                            {entries.map(entry => (
+                                                <article class="entry-line">
+                                                    <a href={`/observations/${entry.slug}`} class="entry-link">
+                                                        <span class="entry-title">{entry.data.title}</span>
+                                                    </a>
+                                                    <div class="entry-meta">
+                                                        <span class="meta-separator">✦</span>
+                                                        <span class="meta-item">{entry.data.constellation}</span>
+                                                        <span class="meta-separator">•</span>
+                                                        <span class="meta-item author">{entry.data.author}</span>
+                                                    </div>
+                                                </article>
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                );
+            })}
+        </section>
+    </main>
+</Layout>
+
+<style>
+    .archives-main {
+        max-width: var(--max-width-content);
+        margin: 0 auto;
+        padding: 4rem var(--spacing-base);
+    }
+
+    .archives-header {
+        text-align: center;
+        margin-bottom: 5rem;
+    }
+
+    .page-title {
+        font-family: var(--font-serif-display);
+        font-size: 3.5rem;
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        margin-bottom: 1rem;
+        text-shadow: var(--shadow-celestial);
+    }
+
+    .page-subtitle {
+        font-family: var(--font-serif-elegant);
+        font-size: 1.2rem;
+        color: var(--text-ash-gray);
+        font-style: italic;
+        margin-bottom: 2rem;
+    }
+
+    .ornate-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .divider-line {
+        height: 1px;
+        width: 150px;
+        background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
+    }
+
+    .star-icon {
+        color: var(--accent-gold);
+        font-size: 1.2rem;
+        text-transform: none !important;
+    }
+
+    /* Dense Timeline Architecture */
+    .compact-timeline {
+        position: relative;
+        max-width: 800px;
+        margin: 0 auto;
+        padding-bottom: 4rem;
+    }
+
+    .timeline-spine {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 100px;
+        width: 1px;
+        background: linear-gradient(to bottom, transparent, var(--border-gold), var(--accent-gold), rgba(140, 115, 75, 0.2), transparent);
+        box-shadow: 0 0 10px rgba(207, 170, 107, 0.2);
+    }
+
+    .year-section {
+        margin-bottom: 4rem;
+    }
+
+    .year-marker {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .year-gem {
+        position: absolute;
+        left: 100px;
+        width: 24px;
+        height: 24px;
+        background: var(--bg-dark-night);
+        border: 1px solid var(--accent-gold);
+        transform: translateX(-50%) rotate(45deg);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 0 10px rgba(207, 170, 107, 0.4);
+        transition: var(--transition-smooth);
+    }
+
+    .year-section:hover .year-gem {
+        box-shadow: 0 0 20px var(--accent-gold-glow);
+        background: rgba(20, 22, 33, 1);
+    }
+
+    .gem-inner {
+        width: 8px;
+        height: 8px;
+        background: var(--accent-gold);
+        box-shadow: 0 0 8px var(--accent-gold);
+    }
+
+    .year-label {
+        font-family: var(--font-serif-display);
+        font-size: 2.2rem;
+        color: var(--accent-gold);
+        letter-spacing: 0.1em;
+        margin-left: 140px; /* Offset past the spine */
+        text-shadow: var(--shadow-celestial);
+        margin-bottom: 0;
+        line-height: 1;
+    }
+
+    .month-group {
+        display: flex;
+        flex-direction: row;
+        position: relative;
+        margin-bottom: 3rem;
+        align-items: flex-start;
+    }
+
+    .month-label-col {
+        width: 100px;
+        text-align: right;
+        padding-left: 0;
+        padding-right: 25px; /* Spacing from the spine */
+        position: relative;
+        margin-bottom: 0;
+        padding-top: 0;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        height: 1.54rem; /* Aligns visually with the first article title */
+    }
+
+    /* The interactive node on the spine for the month */
+    .month-node {
+        position: absolute;
+        right: -4px; /* Move to the right edge (the spine) */
+        top: 50%;
+        margin-top: -4px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--border-gold);
+        box-shadow: 0 0 8px var(--accent-gold-glow);
+        transition: var(--transition-smooth);
+        z-index: 2;
+    }
+
+    .month-name {
+        font-family: var(--font-serif-display);
+        font-size: 1.2rem;
+        color: rgba(207, 170, 107, 0.8); /* Dimmed gold */
+        letter-spacing: 0.05em;
+        line-height: 1;
+    }
+
+    .month-count {
+        font-family: var(--font-body);
+        font-size: 0.85rem;
+        color: var(--text-ash-gray);
+        margin-left: 0.3rem;
+        font-style: italic;
+        line-height: 1;
+    }
+
+    .entries-col {
+        flex: 1;
+        padding-left: 30px; /* Reduced to bring articles closer */
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .entry-line {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px dashed transparent;
+        transition: var(--transition-smooth);
+        position: relative;
+    }
+
+    .entry-line:hover {
+        border-bottom-color: rgba(207, 170, 107, 0.3);
+        transform: translateX(5px);
+    }
+
+    /* Illuminating the month node when hovering the group */
+    .month-group:hover .month-node {
+        background: var(--accent-gold);
+        transform: scale(1.6);
+        box-shadow: 0 0 15px var(--accent-gold);
+    }
+
+    .entry-link {
+        text-decoration: none;
+        color: rgba(232, 227, 211, 0.75); /* Dimmed parchment */
+        font-family: var(--font-serif-elegant);
+        font-size: 1.1rem; /* Slightly smaller than before */
+        transition: var(--transition-smooth);
+        line-height: 1.4;
+    }
+
+    .entry-link:hover {
+        color: var(--accent-gold-glow);
+        text-shadow: 0 0 8px rgba(207, 170, 107, 0.3);
+    }
+
+    .entry-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap; /* Allows wrap on small devices */
+        gap: 0.5rem;
+        font-family: var(--font-body);
+        font-size: 0.85rem;
+        color: rgba(176, 181, 192, 0.7);
+    }
+
+    .meta-separator {
+        color: var(--border-gold);
+        font-size: 0.7rem;
+    }
+
+    .meta-item {
+        font-style: italic;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 650px) {
+        .timeline-spine {
+            left: 15px;
+        }
+
+        .year-gem {
+            left: 15px;
+        }
+
+        .year-label {
+            margin-left: 50px;
+        }
+
+        .month-group {
+            flex-direction: column;
+        }
+
+        .month-label-col {
+            width: auto;
+            text-align: left;
+            padding-left: 50px;
+            padding-right: 0;
+            padding-top: 0;
+            margin-bottom: 1rem;
+            height: auto;
+            justify-content: flex-start;
+        }
+
+        .month-node {
+            right: auto;
+            left: 11px; /* 15px spine - 4px */
+            top: 50%;
+        }
+
+        .entries-col {
+            padding-left: 50px;
+        }
+    }
+</style>

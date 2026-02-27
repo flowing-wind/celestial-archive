@@ -1,0 +1,357 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import { siteConfig } from "../../config/siteConfig";
+
+// Fetch all observations
+const observations = await getCollection("observations");
+
+// Group observations by 'constellation'
+const groupedByConstellation = observations.reduce((acc, obs) => {
+    const key = obs.data.constellation;
+    if (!acc[key]) {
+        acc[key] = [];
+    }
+    acc[key].push(obs);
+    return acc;
+}, {} as Record<string, typeof observations>);
+
+// Sort groups alphabetically for consistent rendering
+const sortedConstellations = Object.keys(groupedByConstellation).sort();
+---
+
+<Layout title="Constellations | Grouped Archives">
+    <main class="constellations-main">
+        <header class="constellations-header">
+            <h1 class="page-title">The Constellations</h1>
+            <p class="page-subtitle">Records clustered by thematic resonance and shared gravity.</p>
+            <div class="ornate-divider">
+                <span class="divider-line"></span>
+                <span class="material-symbols-outlined star-icon">star_rate</span>
+                <span class="divider-line"></span>
+            </div>
+            <p class="intro-text">
+                The following are groups of works set in the same thematic universe or cohesive storyline, 
+                interlocked like gears within the great astrolabe of the Library.
+            </p>
+        </header>
+
+        <section class="canons-container">
+            {
+                sortedConstellations.map((constellationName) => {
+                    const entries = groupedByConstellation[constellationName].sort(
+                         (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+                    );
+                    
+                    return (
+                        <article class="canon-block">
+                            <!-- Geometric stellar borders -->
+                            <div class="stellar-border-top">
+                                <span class="corner-left"></span>
+                                <span class="center-gem"></span>
+                                <span class="corner-right"></span>
+                            </div>
+
+                            <div class="canon-content">
+                                <h2 class="canon-title">{constellationName}</h2>
+                                
+                                <div class="lore-box">
+                                    <p>{siteConfig.constellationsLore[constellationName] || "Undocumented records awaiting the Archivist's classification."}</p>
+                                </div>
+
+                                <ul class="canon-entries-list">
+                                    {entries.slice(0, 3).map((entry) => (
+                                        <li class="canon-entry-item">
+                                            <span class="star-bullet">✦</span>
+                                            <a href={`/observations/${entry.slug}`} class="entry-link">
+                                                {entry.data.title}
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+
+                                {entries.length > 3 && (
+                                    <p class="more-entries-note">... and {entries.length - 3} older records.</p>
+                                )}
+
+                                <div class="read-collection-wrapper">
+                                    <a href={`/constellations/${constellationName.toLowerCase().replace(/\s+/g, '-')}`} class="read-collection-btn">
+                                        Read Collection <span class="material-symbols-outlined">east</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="stellar-border-bottom">
+                                <span class="corner-left"></span>
+                                <span class="center-gem"></span>
+                                <span class="corner-right"></span>
+                            </div>
+                        </article>
+                    );
+                })
+            }
+        </section>
+    </main>
+</Layout>
+
+<style>
+    .constellations-main {
+        max-width: var(--max-width-content);
+        margin: 0 auto;
+        padding: 4rem var(--spacing-base);
+    }
+
+    .constellations-header {
+        text-align: center;
+        margin-bottom: 5rem;
+    }
+
+    .page-title {
+        font-family: var(--font-serif-display);
+        font-size: 3.5rem;
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        margin-bottom: 1rem;
+        text-shadow: var(--shadow-celestial);
+    }
+
+    .page-subtitle {
+        font-family: var(--font-serif-elegant);
+        font-size: 1.2rem;
+        color: var(--text-ash-gray);
+        font-style: italic;
+        margin-bottom: 2rem;
+    }
+
+    .intro-text {
+        color: #d1c8b3; /* Brighter parchment tone for better visibility */
+        font-family: var(--font-body);
+        font-size: 1.05rem;
+        line-height: 1.8;
+        max-width: 800px;
+        margin: 2rem auto 0;
+        text-shadow: 0 0 10px rgba(207, 170, 107, 0.1);
+    }
+
+    .ornate-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .divider-line {
+        height: 1px;
+        width: 250px;
+        background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
+    }
+
+    .star-icon {
+        color: var(--accent-gold);
+        font-size: 1.5rem;
+        filter: drop-shadow(0 0 5px var(--accent-gold));
+        text-transform: none !important;
+    }
+
+    /* Canon Blocks mimicking Wanderers' Library but with Star motives */
+    .canons-container {
+        display: flex;
+        flex-direction: column;
+        gap: 5rem;
+    }
+
+    .canon-block {
+        position: relative;
+        background: rgba(10, 11, 16, 0.6);
+        border-left: 1px solid var(--border-gold);
+        border-right: 1px solid var(--border-gold);
+        box-shadow: inset 0 0 50px rgba(0,0,0,0.5), 0 0 20px rgba(207, 170, 107, 0.05);
+        backdrop-filter: blur(5px);
+        transition: var(--transition-smooth);
+    }
+
+    .canon-block:hover {
+        background: rgba(15, 17, 26, 0.8);
+        box-shadow: inset 0 0 50px rgba(0,0,0,0.7), 0 0 30px rgba(207, 170, 107, 0.1);
+    }
+
+    .canon-content {
+        padding: 3rem 4rem;
+    }
+
+    .canon-title {
+        font-family: var(--font-serif-display);
+        font-size: 2.5rem;
+        color: var(--accent-gold);
+        text-shadow: var(--shadow-celestial);
+        margin-bottom: 1.5rem;
+        text-align: center;
+        letter-spacing: 0.1em;
+    }
+
+    .lore-box {
+        background: rgba(207, 170, 107, 0.05);
+        border: 1px solid rgba(207, 170, 107, 0.2);
+        padding: 1rem 1.5rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+    }
+
+    .lore-box p {
+        font-family: var(--font-body);
+        font-size: 1.05rem;
+        color: var(--text-ash-gray);
+        line-height: 1.7;
+        margin: 0;
+        text-align: justify;
+    }
+
+    .canon-entries-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.5rem 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+    }
+
+    .canon-entry-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .star-bullet {
+        color: var(--border-gold);
+        font-size: 1rem;
+        line-height: 1;
+        filter: drop-shadow(0 0 3px rgba(207, 170, 107, 0.5));
+    }
+
+    .entry-link {
+        font-family: var(--font-serif-elegant);
+        font-size: 1.05rem; /* Matches lore box body font size exactly */
+        color: #d1c8b3; /* Same bright parchment tone used for the intro text */
+        text-decoration: none;
+        transition: var(--transition-smooth);
+    }
+
+    .entry-link:hover {
+        color: var(--accent-gold-glow);
+        text-shadow: 0 0 8px rgba(207, 170, 107, 0.3);
+    }
+
+    .more-entries-note {
+        font-family: var(--font-serif-elegant);
+        font-style: italic;
+        color: rgba(176, 181, 192, 0.5);
+        margin-bottom: 2rem;
+        padding-left: 2.2rem;
+    }
+
+    .read-collection-wrapper {
+        border-top: 1px dashed rgba(207, 170, 107, 0.3);
+        padding-top: 1rem;
+        margin-top: 1rem;
+        text-align: right;
+    }
+
+    .read-collection-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-family: var(--font-serif-display);
+        font-size: 0.85rem;
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        text-decoration: none;
+        transition: var(--transition-smooth);
+    }
+
+    .read-collection-btn .material-symbols-outlined {
+        font-size: 1rem;
+        text-transform: none !important;
+    }
+
+    .read-collection-btn:hover {
+        color: var(--accent-gold-glow);
+        text-shadow: 0 0 8px rgba(207, 170, 107, 0.3);
+    }
+
+    /* Astrolabe Geometric Borders */
+    .stellar-border-top, .stellar-border-bottom {
+        position: absolute;
+        width: 100%;
+        height: 1px;
+        background: var(--border-gold);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stellar-border-top {
+        top: 0;
+    }
+
+    .stellar-border-bottom {
+        bottom: 0;
+    }
+
+    /* Core diamond shapes acting as corners */
+    .corner-left, .corner-right {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: var(--bg-dark-night);
+        border: 1px solid var(--accent-gold);
+        transform: rotate(45deg);
+    }
+
+    .stellar-border-top .corner-left { left: -5px; top: -5px; }
+    .stellar-border-top .corner-right { right: -5px; top: -5px; }
+    
+    .stellar-border-bottom .corner-left { left: -5px; bottom: -5px; }
+    .stellar-border-bottom .corner-right { right: -5px; bottom: -5px; }
+
+    /* The central focal gem of the border */
+    .center-gem {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%) rotate(45deg);
+        width: 16px;
+        height: 16px;
+        background: var(--bg-dark-night);
+        border: 1px solid var(--accent-gold);
+        box-shadow: 0 0 10px var(--accent-gold-glow);
+    }
+
+    .stellar-border-top .center-gem { top: -8px; }
+    .stellar-border-bottom .center-gem { bottom: -8px; }
+
+    /* Micro-animation for the gems */
+    .canon-block:hover .center-gem {
+        background: var(--border-gold);
+        box-shadow: 0 0 20px var(--accent-gold-glow);
+        transition: var(--transition-smooth);
+    }
+
+    .canon-block:hover .corner-left, 
+    .canon-block:hover .corner-right {
+        background: rgba(207, 170, 107, 0.2);
+        transition: var(--transition-smooth);
+    }
+
+    @media (max-width: 768px) {
+        .canon-content {
+            padding: 2rem 1.5rem;
+        }
+        .canon-title {
+            font-size: 2rem;
+        }
+        .page-title {
+            font-size: 2.5rem;
+        }
+    }
+</style>

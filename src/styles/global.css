@@ -1,0 +1,109 @@
+/* 
+ * Celestial Archive - Global Design Tokens 
+ * Based on the Wanderers' Library and astronomical themes.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+:root {
+  /* Color Palette */
+  --bg-dark-night: #0a0b10;
+  /* Deep starry night background */
+  --bg-parchment: #e8e3d3;
+  /* Ancient parchment paper color */
+  --bg-library-brown: #2d1f14;
+  /* Dark wood books/library */
+  --text-ash-gray: #b0b5c0;
+  /* Ash gray/gray blue for standard text on dark */
+  --text-parchment-dark: #3e3226;
+  /* Dark text on parchment */
+  --accent-gold: #cfaa6b;
+  /* Sacred gold accent */
+  --accent-gold-glow: #e8cc81;
+  /* Brighter gold for hover/glow */
+  --border-gold: #8c734b;
+  /* Muted gold for structural borders */
+
+  /* Typography */
+  --font-serif-display: 'Cinzel', serif;
+  /* Titles, astronomical/sacred feel */
+  --font-serif-elegant: 'Playfair Display', serif;
+  /* Elegant subheadings */
+  --font-body: 'Lora', serif;
+  /* Highly readable body text, historical feel */
+
+  /* Spacing & Structure */
+  --spacing-base: 1rem;
+  --max-width-content: 1200px;
+
+  /* Effects */
+  --shadow-celestial: 0 0 15px rgba(207, 170, 107, 0.3);
+  --shadow-deep: 0 10px 30px rgba(0, 0, 0, 0.7);
+  --transition-smooth: all 0.3s ease-in-out;
+}
+
+/* Reset & Base Styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-dark-night);
+  color: var(--text-ash-gray);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-serif-display);
+  color: var(--accent-gold);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+a {
+  color: var(--accent-gold);
+  text-decoration: none;
+  transition: var(--transition-smooth);
+}
+
+a:hover {
+  color: var(--accent-gold-glow);
+  text-shadow: var(--shadow-celestial);
+}
+
+/* Selection */
+::selection {
+  background-color: var(--accent-gold);
+  color: var(--bg-dark-night);
+}
+
+/* Scrollbar styling for that old library feel */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark-night);
+  border-left: 1px solid var(--border-gold);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-gold);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-gold);
+}

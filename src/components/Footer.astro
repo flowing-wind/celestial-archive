@@ -1,0 +1,246 @@
+---
+// src/components/Footer.astro
+import { siteConfig } from "../config/siteConfig";
+import { getCollection } from "astro:content";
+
+const year = new Date().getFullYear();
+
+// Fetch observations to dynamically generate constellations
+const observations = await getCollection("observations");
+const constellationsSet = new Set(
+    observations.map((obs) => obs.data.constellation),
+);
+const displayConstellations = Array.from(constellationsSet).sort().slice(0, 4);
+---
+
+<footer class="site-footer">
+    <div class="footer-border"></div>
+    <div class="footer-container">
+        <div class="footer-brand">
+            <h3 class="footer-title">{siteConfig.site.title}</h3>
+            <p class="footer-desc">
+                {siteConfig.footer.description}
+            </p>
+        </div>
+
+        <div class="footer-nav-groups">
+            <div class="footer-section">
+                <h4 class="footer-subtitle">Navigation</h4>
+                <ul class="footer-links">
+                    <li><a href="/">Homepage</a></li>
+                    <li><a href="/archives">Archives</a></li>
+                    <li><a href="/constellations">Constellations</a></li>
+                    <li><a href="/links">Links</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4 class="footer-subtitle">Constellations</h4>
+                <ul class="footer-links">
+                    {
+                        displayConstellations.map((constellation) => (
+                            <li>
+                                <a
+                                    href={`/constellations/${String(constellation).toLowerCase().replace(/\s+/g, "-")}`}
+                                >
+                                    {constellation}
+                                </a>
+                            </li>
+                        ))
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <div class="icp-links">
+            <a
+                href="https://beian.miit.gov.cn/"
+                target="_blank"
+                rel="noopener noreferrer">沪ICP备2025133897号</a
+            >
+            <span class="icp-divider">|</span>
+            <a
+                href="https://icp.gov.moe/?keyword=20254590"
+                target="_blank"
+                rel="noopener noreferrer">萌ICP备20254590号</a
+            >
+        </div>
+        <p class="copyright-text">
+            &copy; {year}
+            {siteConfig.site.author}. All rights reserved. "For those who
+            wander, but are not lost."
+        </p>
+    </div>
+</footer>
+
+<style>
+    .site-footer {
+        background-color: var(--bg-library-brown);
+        color: var(--text-ash-gray);
+        position: relative;
+        border-top: 1px solid var(--border-gold);
+        margin-top: 4rem;
+    }
+
+    .footer-border {
+        height: 1px;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            var(--accent-gold),
+            transparent
+        );
+        opacity: 0.5;
+        position: absolute;
+        top: 4px;
+        left: 0;
+        width: 100%;
+    }
+
+    .footer-container {
+        max-width: var(--max-width-content);
+        margin: 0 auto;
+        padding: 3rem var(--spacing-base) 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .footer-brand {
+        flex: 1;
+        min-width: 300px;
+        max-width: 400px;
+    }
+
+    .footer-nav-groups {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 4rem; /* Keeps the two lists tightly coupled together */
+    }
+
+    .footer-section {
+        min-width: 140px;
+    }
+
+    .footer-title {
+        font-family: var(--font-serif-display);
+        font-size: 1.5rem;
+        margin-bottom: 0.8rem;
+        color: var(--accent-gold);
+    }
+
+    .footer-desc {
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .footer-subtitle {
+        font-family: var(--font-serif-elegant);
+        font-size: 1.1rem;
+        color: var(--accent-gold-glow);
+        margin-bottom: 1rem;
+    }
+
+    .footer-links {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem; /* Tightened vertical gap */
+    }
+
+    .footer-links a {
+        color: #d1c8b3; /* Brighter visibility */
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        position: relative;
+        padding-left: 1rem;
+        text-decoration: none;
+    }
+
+    .footer-links a::before {
+        content: "✦";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.6rem;
+        color: var(--border-gold);
+        transition: var(--transition-smooth);
+    }
+
+    .footer-links a:hover {
+        color: var(--accent-gold);
+    }
+
+    .footer-links a:hover::before {
+        color: var(--accent-gold-glow);
+        text-shadow: var(--shadow-celestial);
+    }
+
+    .footer-bottom {
+        text-align: center;
+        padding: 1.5rem;
+        border-top: 1px dashed rgba(140, 115, 75, 0.3); /* Subtle dashed border */
+    }
+
+    .icp-links {
+        margin-bottom: 0.8rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .icp-links a {
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        color: #e0d8c3; /* Bright enough to read clearly on black */
+        text-decoration: none;
+        transition: var(--transition-smooth);
+    }
+
+    .icp-links a:hover {
+        color: var(--accent-gold-glow);
+        text-shadow: 0 0 8px rgba(207, 170, 107, 0.4);
+    }
+
+    .icp-divider {
+        color: var(--border-gold);
+        opacity: 0.5;
+        font-size: 0.8rem;
+    }
+
+    .copyright-text {
+        font-size: 0.85rem;
+        font-style: italic;
+        color: rgba(176, 181, 192, 0.7);
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .footer-container {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 2.5rem;
+        }
+        .footer-brand {
+            margin: 0 auto;
+        }
+        .footer-nav-groups {
+            justify-content: center;
+            gap: 2.5rem;
+        }
+        .footer-links a {
+            padding-left: 0;
+        }
+        .footer-links a::before {
+            display: none;
+        }
+    }
+</style>
