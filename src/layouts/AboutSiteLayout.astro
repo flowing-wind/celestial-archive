@@ -1,0 +1,259 @@
+---
+import Layout from "./Layout.astro";
+import "../styles/markdown.css";
+
+const { frontmatter } = Astro.props;
+---
+
+<Layout title={`${frontmatter.title} | Celestial Archive`}>
+    <div class="site-about-container">
+        <!-- Decorative Header Element -->
+        <div class="celestial-header-element">
+            <div class="header-line left"></div>
+            <div class="center-diamond">
+                <span class="material-symbols-outlined star-icon">diamond</span>
+            </div>
+            <div class="header-line right"></div>
+        </div>
+
+        <header class="site-about-header">
+            <h1 class="page-title">{frontmatter.title}</h1>
+            <p class="subtitle">
+                {frontmatter.subtitle || "The Architecture of the Void"}
+            </p>
+        </header>
+
+        <main class="site-about-content">
+            <article class="markdown-body customized-markdown">
+                <slot />
+            </article>
+        </main>
+
+        <footer class="site-about-footer">
+            <div class="decorative-dots">
+                <span>·</span><span>·</span><span>·</span><span>✦</span><span
+                    >·</span
+                ><span>·</span><span>·</span>
+            </div>
+        </footer>
+    </div>
+</Layout>
+
+<style>
+    .site-about-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 4rem var(--spacing-base) 6rem;
+        animation: fadeIn 1s ease-out;
+        position: relative;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Celestial Header Element */
+    .celestial-header-element {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 3rem;
+        gap: 1.5rem;
+    }
+
+    .header-line {
+        height: 1px;
+        flex: 1;
+        max-width: 150px;
+    }
+
+    .header-line.left {
+        background: linear-gradient(90deg, transparent, var(--border-gold));
+    }
+
+    .header-line.right {
+        background: linear-gradient(270deg, transparent, var(--border-gold));
+    }
+
+    .center-diamond {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border: 1px solid var(--border-gold);
+        transform: rotate(45deg); /* Diamond shape */
+        box-shadow: 0 0 15px rgba(207, 170, 107, 0.1);
+    }
+
+    .center-diamond .star-icon {
+        transform: rotate(-45deg); /* Keep icon straight */
+        color: var(--accent-gold);
+        font-size: 1.2rem;
+    }
+
+    /* Header text */
+    .site-about-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .page-title {
+        font-family: var(--font-serif-display);
+        font-size: clamp(2.5rem, 5vw, 3.5rem);
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 20px rgba(207, 170, 107, 0.2);
+    }
+
+    .subtitle {
+        font-family: var(--font-serif-elegant);
+        font-size: 1.1rem;
+        color: var(--text-ash-gray);
+        font-style: italic;
+        letter-spacing: 0.1em;
+    }
+
+    /* Content Area */
+    .site-about-content {
+        position: relative;
+        padding: 3rem 4rem;
+        background: rgba(
+            10,
+            11,
+            16,
+            0.6
+        ); /* Slightly darker than library brown to feel like deep space */
+        border-top: 1px solid rgba(140, 115, 75, 0.3);
+        border-bottom: 1px solid rgba(140, 115, 75, 0.3);
+    }
+
+    /* Elegant vertical border lines */
+    .site-about-content::before,
+    .site-about-content::after {
+        content: "";
+        position: absolute;
+        top: 20px;
+        bottom: 20px;
+        width: 1px;
+        background: linear-gradient(
+            to bottom,
+            transparent,
+            rgba(207, 170, 107, 0.2),
+            rgba(207, 170, 107, 0.5),
+            rgba(207, 170, 107, 0.2),
+            transparent
+        );
+    }
+
+    .site-about-content::before {
+        left: 0;
+    }
+    .site-about-content::after {
+        right: 0;
+    }
+
+    /* Custom Markdown Overrides for "About This Site" */
+    .customized-markdown {
+        color: rgba(209, 200, 179, 0.9);
+        font-size: 1.1rem;
+        line-height: 1.8;
+    }
+
+    .customized-markdown :global(h2) {
+        font-family: var(--font-serif-display);
+        color: var(--accent-gold-glow);
+        font-size: 1.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-top: 3.5rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px dashed rgba(140, 115, 75, 0.3);
+        padding-bottom: 0.8rem;
+    }
+
+    .customized-markdown :global(h2::before) {
+        content: "I. "; /* Auto numbering feel, though hardcoded. Or just a symbol: */
+        content: "❖ ";
+        color: var(--border-gold);
+        font-size: 0.8em;
+        margin-right: 0.5rem;
+    }
+
+    .customized-markdown :global(h3) {
+        color: var(--accent-gold);
+        font-size: 1.4rem;
+        margin-top: 2.5rem;
+        font-family: var(--font-serif-elegant);
+        font-style: italic;
+    }
+
+    .customized-markdown :global(p) {
+        margin-bottom: 1.5rem;
+    }
+
+    .customized-markdown :global(blockquote) {
+        border-left: 2px solid var(--accent-gold);
+        background: rgba(207, 170, 107, 0.05);
+        padding: 1rem 1.5rem;
+        margin: 2rem 0;
+        font-style: italic;
+        color: var(--text-ash-gray);
+    }
+
+    /* Footer Dots */
+    .site-about-footer {
+        margin-top: 4rem;
+        text-align: center;
+    }
+
+    .decorative-dots {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        color: rgba(140, 115, 75, 0.5);
+        font-size: 1.2rem;
+    }
+
+    .decorative-dots span:nth-child(4) {
+        color: var(--accent-gold);
+        font-size: 1.5rem;
+        animation: pulse 3s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            opacity: 0.5;
+            text-shadow: none;
+        }
+        50% {
+            opacity: 1;
+            text-shadow: 0 0 10px var(--accent-gold-glow);
+        }
+        100% {
+            opacity: 0.5;
+            text-shadow: none;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .site-about-content {
+            padding: 2rem 1.5rem;
+        }
+
+        /* Remove the side lines on mobile */
+        .site-about-content::before,
+        .site-about-content::after {
+            display: none;
+        }
+    }
+</style>

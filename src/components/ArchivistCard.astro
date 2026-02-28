@@ -1,0 +1,332 @@
+---
+// src/components/ArchivistCard.astro
+// Identity Card component for the Archivist
+---
+
+<div class="id-card-container">
+    <div class="id-card">
+        <div class="card-header">
+            <span class="seal material-symbols-outlined">api</span>
+            <div class="header-text">
+                <span class="agency">Celestial Archive Authority</span>
+                <span class="card-type">Official Identity Card</span>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="portrait-container">
+                <div class="portrait-placeholder">
+                    <span class="material-symbols-outlined portrait-icon"
+                        >badge</span
+                    >
+                </div>
+            </div>
+
+            <div class="details-container">
+                <div class="detail-row">
+                    <span class="label">Name:</span>
+                    <span class="value name-value">The Archivist</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Designation:</span>
+                    <span class="value">Chief Curator</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">ID Number:</span>
+                    <span class="value id-number">CA-0001-OMEGA</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Clearance Level:</span>
+                    <span class="value clearance">Omniscient</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Date of Issue:</span>
+                    <span class="value">Epoch 0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <div class="barcode">|| | ||| || ||| | || |||| | |||</div>
+            <div class="signature-block">
+                <span class="signature">The Archivist</span>
+                <span class="signature-label">Authorized Signature</span>
+            </div>
+        </div>
+
+        <!-- Subtle overlay for the holographic/parchment effect -->
+        <div class="card-overlay"></div>
+    </div>
+</div>
+
+<style>
+    .id-card-container {
+        display: flex;
+        justify-content: center;
+        margin: 3rem 0;
+        perspective: 1000px; /* For 3D effects if we want them later */
+    }
+
+    .id-card {
+        width: 100%;
+        max-width: 600px;
+        background: var(--bg-parchment);
+        border: 2px solid var(--border-gold);
+        border-radius: 12px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow:
+            var(--shadow-deep),
+            0 0 20px rgba(207, 170, 107, 0.1);
+        color: var(--text-parchment-dark);
+        font-family: inherit;
+        /* A subtle texture could be added here */
+        background-image:
+            radial-gradient(
+                circle at 100% 0%,
+                rgba(207, 170, 107, 0.15) 0%,
+                transparent 40%
+            ),
+            radial-gradient(
+                circle at 0% 100%,
+                rgba(207, 170, 107, 0.1) 0%,
+                transparent 40%
+            );
+    }
+
+    /* Subtle Animated Overlay (Holographic vibe) */
+    .card-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+            135deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.05) 45%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 55%,
+            transparent 100%
+        );
+        background-size: 200% 200%;
+        animation: shimmer 5s infinite linear;
+        pointer-events: none;
+        z-index: 10;
+        mix-blend-mode: overlay;
+    }
+
+    @keyframes shimmer {
+        0% {
+            background-position: 200% 0;
+        }
+        100% {
+            background-position: -200% 0;
+        }
+    }
+
+    /* Header Section */
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        border-bottom: 2px solid var(--border-gold);
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .seal {
+        font-size: 3rem;
+        color: var(--border-gold);
+        /* Adding a bit of a stamp look */
+        filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+    }
+
+    .header-text {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .agency {
+        font-family: var(--font-serif-display);
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--bg-library-brown);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        line-height: 1.2;
+    }
+
+    .card-type {
+        font-family: var(--font-serif-elegant);
+        font-size: 0.9rem;
+        font-style: italic;
+        color: var(--border-gold);
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+    }
+
+    /* Body Section */
+    .card-body {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Portrait */
+    .portrait-container {
+        width: 140px;
+        height: 180px;
+        border: 2px solid var(--border-gold);
+        border-radius: 4px;
+        padding: 4px;
+        background: var(--bg-library-brown);
+        position: relative;
+    }
+
+    .portrait-placeholder {
+        width: 100%;
+        height: 100%;
+        background: rgba(
+            10,
+            11,
+            16,
+            0.5
+        ); /* Night background for the picture */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px dashed var(--accent-gold);
+        overflow: hidden;
+    }
+
+    .portrait-icon {
+        font-size: 4rem;
+        color: var(--accent-gold);
+        opacity: 0.6;
+    }
+
+    /* Details */
+    .details-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.8rem;
+    }
+
+    .detail-row {
+        display: flex;
+        flex-direction: column;
+        border-bottom: 1px dotted rgba(140, 115, 75, 0.5);
+        padding-bottom: 0.3rem;
+    }
+
+    .label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--border-gold);
+        margin-bottom: 0.2rem;
+    }
+
+    .value {
+        font-family: var(--font-body);
+        font-size: 1.1rem;
+        color: var(--bg-library-brown);
+        font-weight: 500;
+    }
+
+    .name-value {
+        font-family: var(--font-serif-display);
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--bg-dark-night);
+    }
+
+    .id-number {
+        font-family: monospace;
+        letter-spacing: 0.15em;
+        font-weight: 600;
+    }
+
+    .clearance {
+        color: #8b0000; /* Deep red for an 'official' authoritative tone */
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    /* Footer Section */
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-top: 1rem;
+    }
+
+    .barcode {
+        font-family: monospace;
+        font-size: 1.5rem;
+        color: var(--bg-library-brown);
+        letter-spacing: -2px;
+        opacity: 0.7;
+        /* Fake barcode effect */
+        transform: scaleY(1.5);
+        transform-origin: bottom;
+    }
+
+    .signature-block {
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .signature {
+        font-family:
+            "Brush Script MT", "Cedarville Cursive", cursive; /* Fancy script font fallback */
+        font-size: 2.2rem;
+        color: var(--bg-dark-night);
+        line-height: 1;
+        margin-bottom: 0.2rem;
+        transform: rotate(-3deg); /* Slightly angled signature */
+    }
+
+    .signature-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--border-gold);
+        border-top: 1px solid var(--border-gold);
+        padding-top: 0.3rem;
+        width: 150px;
+        text-align: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+        .card-body {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+
+        .portrait-container {
+            margin: 0 auto;
+        }
+
+        .detail-row {
+            align-items: center;
+        }
+
+        .card-footer {
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .signature-block {
+            align-items: center;
+        }
+    }
+</style>

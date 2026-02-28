@@ -1,0 +1,409 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+// Sample Data for "Observed Beacons" (Friends Links)
+const constellationsOfAllies = [
+    {
+        name: "Wanderer's Library",
+        url: "#",
+        description: "A repository of dimensional drifting and lost codices.",
+        avatar: "auto_stories" // Material Symbol icon
+    },
+    {
+        name: "Deep Space Observatory",
+        url: "#",
+        description: "Scanning the void for signals of intelligent frameworks.",
+        avatar: "satellite_alt"
+    },
+    {
+        name: "The Aether Forge",
+        url: "#",
+        description: "Crafting digital artifacts from pure energy and CSS.",
+        avatar: "local_fire_department"
+    },
+    {
+        name: "Orbital Mechanics",
+        url: "#",
+        description: "Thoughts on gravity, design systems, and frontend trajectories.",
+        avatar: "toll" // A ring-like icon
+    },
+    {
+        name: "Stella Incognita",
+        url: "#",
+        description: "Mapping the uncharted territories of web development.",
+        avatar: "explore"
+    },
+    {
+        name: "Terminal Echoes",
+        url: "#",
+        description: "Resonant frequencies from the command line.",
+        avatar: "terminal"
+    }
+];
+---
+
+<Layout title="Observed Beacons | Celestial Archive">
+    <div class="links-container">
+        
+        <!-- The Astrolabe Centerpiece -->
+        <section class="astrolabe-section">
+            <div class="astrolabe">
+                <div class="ring outer-ring">
+                    <div class="ring-marker top"></div>
+                    <div class="ring-marker bottom"></div>
+                </div>
+                <div class="ring middle-ring"></div>
+                <div class="ring inner-ring"></div>
+                <div class="core-star">
+                    <div class="core-glow"></div>
+                </div>
+            </div>
+            
+            <header class="links-header">
+                <h1 class="page-title">Observed Beacons</h1>
+                <p class="subtitle">
+                    Signals captured by the Astrolabe from allied coordinates across the void.
+                </p>
+            </header>
+        </section>
+
+        <!-- The Links Grid -->
+        <section class="beacons-grid-section">
+            <div class="beacons-grid">
+                {constellationsOfAllies.map((ally) => (
+                    <a href={ally.url} class="beacon-card" target="_blank" rel="noopener noreferrer">
+                        <div class="beacon-avatar-container">
+                            <div class="avatar-ring">
+                                <span class="material-symbols-outlined avatar-icon">{ally.avatar}</span>
+                            </div>
+                        </div>
+                        <div class="beacon-info">
+                            <h3 class="beacon-name">{ally.name}</h3>
+                            <p class="beacon-desc">{ally.description}</p>
+                        </div>
+                        
+                        <!-- Glow effect that triggers on hover -->
+                        <div class="hover-glow"></div>
+                    </a>
+                ))}
+            </div>
+        </section>
+
+    </div>
+</Layout>
+
+<style>
+    .links-container {
+        padding: 4rem 0 6rem 0;
+        animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- ASTROLABE CSS --- */
+    .astrolabe-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 5rem;
+        position: relative;
+    }
+
+    .astrolabe {
+        width: 250px;
+        height: 250px;
+        position: relative;
+        perspective: 1000px;
+        transform-style: preserve-3d;
+        margin-bottom: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ring {
+        position: absolute;
+        border-radius: 50%;
+        border: 2px solid rgba(140, 115, 75, 0.4);
+        transform-style: preserve-3d;
+    }
+
+    .outer-ring {
+        width: 100%;
+        height: 100%;
+        border-color: rgba(207, 170, 107, 0.4);
+        border-width: 3px;
+        border-style: solid;
+        animation: spinOuter 25s linear infinite;
+        box-shadow: 
+            inset 0 0 15px rgba(207, 170, 107, 0.1),
+            0 0 15px rgba(207, 170, 107, 0.1);
+    }
+
+    .outer-ring::before {
+        content: '';
+        position: absolute;
+        top: -3px; left: -3px; right: -3px; bottom: -3px;
+        border: 1px dashed var(--accent-gold);
+        border-radius: 50%;
+        opacity: 0.3;
+        animation: spinReverse 40s linear infinite;
+    }
+
+    .middle-ring {
+        width: 75%;
+        height: 75%;
+        border-color: var(--border-gold);
+        border-top-color: var(--accent-gold);
+        animation: spinMiddle 18s linear infinite;
+    }
+
+    .inner-ring {
+        width: 50%;
+        height: 50%;
+        border: 1px dashed var(--accent-gold);
+        animation: spinInner 12s linear infinite;
+    }
+
+    /* Markings on the outer ring to make it look like an instrument */
+    .ring-marker {
+        position: absolute;
+        left: 50%;
+        width: 8px;
+        height: 8px;
+        background: var(--accent-gold);
+        transform: translateX(-50%);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--accent-gold-glow);
+    }
+    .ring-marker.top { top: -4px; }
+    .ring-marker.bottom { bottom: -4px; }
+
+    /* The glowing core */
+    .core-star {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background: var(--accent-gold-glow);
+        border-radius: 50%;
+        z-index: 10;
+        box-shadow: 0 0 20px var(--accent-gold-glow), 0 0 40px rgba(207, 170, 107, 0.5);
+        animation: breathe 4s ease-in-out infinite alternate;
+    }
+
+    .core-glow {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60px; height: 60px;
+        background: radial-gradient(circle, rgba(207, 170, 107, 0.4) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    /* 3D Animations */
+    @keyframes spinOuter {
+        0% { transform: rotateZ(0deg) rotateY(20deg) rotateX(15deg); }
+        100% { transform: rotateZ(360deg) rotateY(20deg) rotateX(15deg); }
+    }
+
+    @keyframes spinReverse {
+        0% { transform: rotateZ(360deg); }
+        100% { transform: rotateZ(0deg); }
+    }
+
+    @keyframes spinMiddle {
+        0% { transform: rotateX(60deg) rotateY(15deg) rotateZ(0deg); }
+        100% { transform: rotateX(60deg) rotateY(15deg) rotateZ(360deg); }
+    }
+
+    @keyframes spinInner {
+        0% { transform: rotateY(70deg) rotateX(20deg) rotateZ(360deg); }
+        100% { transform: rotateY(70deg) rotateX(20deg) rotateZ(0deg); }
+    }
+
+    @keyframes breathe {
+        0% { transform: scale(0.9); opacity: 0.8; }
+        100% { transform: scale(1.1); opacity: 1; }
+    }
+
+    /* --- HEADER --- */
+    .links-header {
+        text-align: center;
+        max-width: 600px;
+        position: relative;
+        z-index: 5;
+    }
+
+    .page-title {
+        font-family: var(--font-serif-display);
+        font-size: clamp(2.5rem, 5vw, 3.5rem);
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 20px rgba(207, 170, 107, 0.3);
+    }
+
+    .subtitle {
+        font-family: var(--font-serif-elegant);
+        font-size: 1.1rem;
+        color: var(--text-ash-gray);
+        font-style: italic;
+        letter-spacing: 0.05em;
+    }
+
+
+    /* --- BEACONS GRID --- */
+    .beacons-grid-section {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .beacons-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    /* Beacon Card (Link Item) */
+    .beacon-card {
+        background: rgba(45, 31, 20, 0.4);
+        border: 1px solid rgba(140, 115, 75, 0.3);
+        border-radius: 8px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+        transition: var(--transition-smooth);
+        backdrop-filter: blur(5px);
+    }
+
+    .beacon-card:hover {
+        border-color: var(--accent-gold);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(207, 170, 107, 0.15);
+    }
+
+    .beacon-avatar-container {
+        flex-shrink: 0;
+        z-index: 2;
+    }
+
+    .avatar-ring {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 1px solid var(--border-gold);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-dark-night);
+        position: relative;
+        transition: var(--transition-smooth);
+    }
+
+    .beacon-card:hover .avatar-ring {
+        border-color: var(--accent-gold-glow);
+        box-shadow: 0 0 15px rgba(207, 170, 107, 0.4);
+    }
+
+    /* Little orbit dot on hover */
+    .avatar-ring::after {
+        content: '';
+        position: absolute;
+        top: -4px;
+        left: 50%;
+        width: 6px;
+        height: 6px;
+        background: var(--accent-gold-glow);
+        border-radius: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .beacon-card:hover .avatar-ring::after {
+        opacity: 1;
+        animation: spinAround 3s linear infinite;
+        transform-origin: center 34px; /* Orbit around the 60px ring */
+    }
+
+    @keyframes spinAround {
+        from { transform: translateX(-50%) rotate(0deg); }
+        to { transform: translateX(-50%) rotate(360deg); }
+    }
+
+    .avatar-icon {
+        color: var(--accent-gold);
+        font-size: 1.8rem;
+        transition: var(--transition-smooth);
+    }
+
+    .beacon-card:hover .avatar-icon {
+        color: var(--accent-gold-glow);
+        transform: scale(1.1);
+    }
+
+    .beacon-info {
+        flex-grow: 1;
+        z-index: 2;
+    }
+
+    .beacon-name {
+        font-family: var(--font-serif-display);
+        font-size: 1.2rem;
+        color: var(--accent-gold);
+        margin: 0 0 0.4rem 0;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        transition: var(--transition-smooth);
+    }
+
+    .beacon-card:hover .beacon-name {
+        color: var(--accent-gold-glow);
+    }
+
+    .beacon-desc {
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        color: var(--text-ash-gray);
+        margin: 0;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Secret glowing gradient in background on hover */
+    .hover-glow {
+        position: absolute;
+        top: 0; right: 0; bottom: 0; left: 0;
+        background: radial-gradient(circle at 100% 50%, rgba(207, 170, 107, 0.1) 0%, transparent 60%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: 1;
+    }
+
+    .beacon-card:hover .hover-glow {
+        opacity: 1;
+    }
+
+    @media (max-width: 600px) {
+        .beacons-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .astrolabe {
+            width: 180px;
+            height: 180px;
+        }
+    }
+</style>

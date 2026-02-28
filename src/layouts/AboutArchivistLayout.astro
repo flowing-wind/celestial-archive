@@ -1,0 +1,191 @@
+---
+import Layout from "./Layout.astro";
+import ArchivistCard from "../components/ArchivistCard.astro";
+import "../styles/markdown.css";
+
+const { frontmatter } = Astro.props;
+---
+
+<Layout title={`${frontmatter.title} | Celestial Archive`}>
+    <div class="about-container">
+        <header class="about-header">
+            <h1 class="page-title">{frontmatter.title}</h1>
+            <div class="ornate-divider">
+                <span class="divider-line"></span>
+                <span class="material-symbols-outlined star-icon"
+                    >auto_awesome</span
+                >
+                <span class="divider-line"></span>
+            </div>
+            <p class="subtitle">
+                {
+                    frontmatter.subtitle ||
+                        "Keeper of the Repository, Observer of the Void"
+                }
+            </p>
+        </header>
+
+        <section class="id-card-section">
+            <ArchivistCard />
+        </section>
+
+        <main class="about-content">
+            <article class="markdown-body custom-markdown">
+                <slot />
+            </article>
+        </main>
+
+        <footer class="about-footer">
+            <div class="end-mark">✧ ✦ ✧</div>
+        </footer>
+    </div>
+</Layout>
+
+<style>
+    .about-container {
+        max-width: 850px;
+        margin: 0 auto;
+        padding: 2rem var(--spacing-base) 4rem;
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Header Styling */
+    .about-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .page-title {
+        font-family: var(--font-serif-display);
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        color: var(--accent-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        margin-bottom: 1rem;
+        text-shadow: var(--shadow-celestial);
+    }
+
+    .subtitle {
+        font-family: var(--font-serif-elegant);
+        font-size: 1.2rem;
+        color: var(--text-ash-gray);
+        font-style: italic;
+        margin-top: 1.5rem;
+    }
+
+    .ornate-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .divider-line {
+        height: 1px;
+        width: 120px;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            var(--border-gold),
+            transparent
+        );
+    }
+
+    .star-icon {
+        color: var(--accent-gold);
+        font-size: 1.5rem;
+    }
+
+    /* Section Spacing */
+    .id-card-section {
+        margin: 4rem 0 5rem 0;
+    }
+
+    /* Markdown Styling Overrides for this specific page */
+    .about-content {
+        background: rgba(45, 31, 20, 0.3); /* Slight library-brown tint */
+        border: 1px solid rgba(140, 115, 75, 0.2);
+        border-radius: 8px;
+        padding: 3rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        position: relative;
+    }
+
+    /* Corner embellishments for the content box */
+    .about-content::before,
+    .about-content::after {
+        content: "";
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border: 1px solid var(--accent-gold);
+        opacity: 0.5;
+    }
+
+    .about-content::before {
+        top: 10px;
+        left: 10px;
+        border-right: none;
+        border-bottom: none;
+    }
+
+    .about-content::after {
+        bottom: 10px;
+        right: 10px;
+        border-left: none;
+        border-top: none;
+    }
+
+    .custom-markdown {
+        color: #d1c8b3; /* Slightly warmer text for the personal intro */
+        font-size: 1.15rem;
+        line-height: 1.9;
+    }
+
+    .custom-markdown :global(h3) {
+        text-align: center;
+        margin-top: 3rem;
+        color: var(--accent-gold-glow);
+    }
+
+    .custom-markdown :global(h3::after) {
+        content: " ✦";
+        color: var(--border-gold);
+        font-size: 0.8em;
+    }
+
+    .custom-markdown :global(h3::before) {
+        content: "✦ ";
+        color: var(--border-gold);
+        font-size: 0.8em;
+    }
+
+    /* Footer */
+    .about-footer {
+        margin-top: 5rem;
+        text-align: center;
+    }
+
+    .end-mark {
+        color: var(--border-gold);
+        font-size: 1.5rem;
+        letter-spacing: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .about-content {
+            padding: 2rem 1.5rem;
+        }
+    }
+</style>
