@@ -17,7 +17,7 @@ If this document renders gracefully, the Archivists have succeeded.
 
 This section tests the basic rendering of text, making sure the `Lora` and `Noto Serif SC` fonts cascade correctly.
 
-这是一段用来测试 **中文混排** 与 *斜体效果* 的基础文本。当东方与西方的文字在星海中交汇，它们应当各自保持优雅。 
+这是一段用来测试 **中文混排** 与 *斜体效果* 的基础文本。 
 We also need to make sure that **bold text**, *italic text*, and ***bold italic text*** stand out from the ash-gray background against the dark night.
 
 ### 1.1 Links and Inline Code
@@ -110,7 +110,7 @@ A catalog of recent anomalous readings:
 | Sector | Anomaly Type | Threat Level | Investigator |
 | :--- | :---: | :---: | ---: |
 | Alpha-7 | Temporal Rift | High | Lyra |
-| Delta-9 | Echo Spasm | Low | Orion |
+| Delta-9 | Echo Spasm | Low | ??? |
 | Sigma-2 | Void Whispers | Constant | fuuraiko |
 
 ### 5.3 Code Blocks

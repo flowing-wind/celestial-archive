@@ -1,6 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import ArchivistCard from "../../components/ArchivistCard.astro";
+import AuthorCard from "../../components/AuthorCard.astro";
 
 // We import the compiled Markdown content directly.
 import { Content as ArchivistContent } from "../../content/about/archivist.md";
@@ -20,12 +21,17 @@ import "../../styles/markdown.css";
                 <span class="divider-line"></span>
             </div>
             <p class="subtitle">
-                Keeper of the Repository, Observer of the Void
+                Keeper of the Repository
             </p>
         </header>
 
         <section class="id-card-section">
-            <ArchivistCard />
+            <div class="card-wrapper">
+                <ArchivistCard />
+            </div>
+            <div class="card-wrapper">
+                <AuthorCard />
+            </div>
         </section>
 
         <main class="about-content">
@@ -42,7 +48,7 @@ import "../../styles/markdown.css";
 
 <style>
     .about-container {
-        max-width: 850px;
+        max-width: 1400px; /* Increased to fit two cards side-by-side */
         margin: 0 auto;
         padding: 2rem var(--spacing-base) 4rem;
         animation: fadeIn 0.8s ease-out;
@@ -59,10 +65,37 @@ import "../../styles/markdown.css";
         }
     }
 
+    /* Cards Section */
+    .id-card-section {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        align-items: stretch; /* Ensure children stretch to equal height */
+    }
+
+    .card-wrapper {
+        flex: 1;
+        min-width: 350px; /* Prevent cards from getting too squished */
+        max-width: 600px;
+        display: flex;
+        justify-content: center;
+    }
+
     /* Header Styling */
     .about-header {
         text-align: center;
         margin-bottom: 3rem;
+        max-width: 800px; /* Keep text columns readable */
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .about-content {
+        max-width: 800px; /* Keep text columns readable */
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .page-title {
